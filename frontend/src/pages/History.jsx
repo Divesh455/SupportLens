@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { MessageSquare, Ticket as TicketIcon, BrainCircuit } from 'lucide-react';
@@ -8,13 +8,8 @@ export default function History() {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  useEffect(() => {
-    if (user) {
-      fetchHistory();
-    }
-  }, [user]);
-
-  const fetchHistory = async () => {
+  const fetchHistory = useCallback(async () => {
+    if (!user) return;
     try {
       const res = await api.get(`/history/${user.id}`);
       setHistory(res.data);
@@ -23,7 +18,12 @@ export default function History() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchHistory();
+  }, [fetchHistory]);
 
   if (loading) return <div className="p-8">Loading history...</div>;
   if (!history) return <div className="p-8 text-red-500">Failed to load history</div>;

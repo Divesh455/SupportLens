@@ -7,17 +7,19 @@ export function useAuth() {
 
   useEffect(() => {
     const fetchUser = async () => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        try {
+      try {
+        const token = localStorage.getItem('token');
+        if (token) {
           const res = await api.get('/auth/profile');
           setUser(res.data);
-        } catch (err) {
-          console.error("Failed to fetch profile", err);
-          localStorage.removeItem('token');
         }
+      } catch (err) {
+        console.error("Failed to initialize auth", err);
+        localStorage.removeItem('token');
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchUser();

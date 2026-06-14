@@ -19,3 +19,10 @@ def test_register():
     data = response.json()
     assert data["email"] == "testauth@example.com"
     assert "id" in data
+
+def test_guest_login():
+    response = client.post("/auth/guest")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["token_type"] == "bearer"
+    assert "access_token" in data

@@ -18,7 +18,7 @@ export default function Login() {
     try {
       await login(email, password);
       navigate('/dashboard');
-    } catch (err) {
+    } catch {
       setError('Invalid email or password');
     } finally {
       setIsLoading(false);
@@ -36,9 +36,9 @@ export default function Login() {
             Sign in to SupportLens
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
+            Don't have an account?{' '}
             <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
-              create a new account
+              Create one
             </Link>
           </p>
         </div>

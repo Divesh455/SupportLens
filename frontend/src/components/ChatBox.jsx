@@ -12,7 +12,7 @@ export default function ChatBox({ userId }) {
     if (userId) {
       fetchConversations(userId);
     }
-  }, [userId]);
+  }, [fetchConversations, userId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });

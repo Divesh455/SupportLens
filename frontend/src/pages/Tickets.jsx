@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import TicketCard from '../components/TicketCard';
@@ -13,11 +13,7 @@ export default function Tickets() {
   const [issue, setIssue] = useState('');
   const [priority, setPriority] = useState('Medium');
 
-  useEffect(() => {
-    fetchTickets();
-  }, [user]);
-
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     if (!user) return;
     try {
       const endpoint = user.role === 'admin' ? '/tickets/' : `/tickets/${user.id}`;
@@ -28,7 +24,12 @@ export default function Tickets() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchTickets();
+  }, [fetchTickets]);
 
   const handleCreateTicket = async (e) => {
     e.preventDefault();
