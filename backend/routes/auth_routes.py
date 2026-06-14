@@ -12,15 +12,6 @@ from fastapi.security import OAuth2PasswordBearer
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-GUEST_EMAIL = "guest@supportlens.app"
-
-def create_token_for_user(user):
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(
-        data={"sub": user.email, "id": user.id, "role": user.role},
-        expires_delta=access_token_expires
-    )
-    return {"access_token": access_token, "token_type": "bearer"}
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
     payload = decode_access_token(token)
@@ -49,20 +40,12 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
     if not verify_password(user_credentials.password, user.password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
 
-    return create_token_for_user(user)
-
-@router.post("/guest", response_model=Token)
-def guest_login(db: Session = Depends(get_db)):
-    user = get_user_by_email(db, email=GUEST_EMAIL)
-    if user is None:
-        user = create_user(db, UserCreate(
-            name="Guest User",
-            email=GUEST_EMAIL,
-            password="guest-access",
-            company="SupportLens"
-        ))
-
-    return create_token_for_user(user)
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": user.email, "id": user.id, "role": user.role},
+        expires_delta=access_token_expires
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/profile", response_model=UserResponse)
 def get_profile(current_user: UserResponse = Depends(get_current_user)):

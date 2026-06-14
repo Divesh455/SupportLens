@@ -1,11 +1,11 @@
-import { useCallback, useState } from 'react';
+import { useState } from 'react';
 import api from '../services/api';
 
 export function useChat() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchConversations = useCallback(async (userId) => {
+  const fetchConversations = async (userId) => {
     try {
       const res = await api.get(`/chat/conversation/${userId}`);
       const formatted = res.data.flatMap(interaction => [
@@ -16,9 +16,9 @@ export function useChat() {
     } catch (err) {
       console.error("Failed to fetch conversations", err);
     }
-  }, []);
+  };
 
-  const sendMessage = useCallback(async (text) => {
+  const sendMessage = async (text) => {
     const tempId = Date.now().toString();
     const newUserMsg = { id: tempId, text, isUser: true, timestamp: new Date().toISOString() };
     setMessages(prev => [...prev, newUserMsg]);
@@ -38,7 +38,7 @@ export function useChat() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
   return { messages, loading, sendMessage, fetchConversations };
 }
