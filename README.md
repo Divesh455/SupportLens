@@ -1,10 +1,10 @@
-# SupportLens - Support That Remembers
+# SupportLens - Support That Remembersss
 
 ## Project Overview
 
 SupportLens is an AI-powered customer support platform that remembers previous customer interactions using persistent memory. Traditional support systems and chatbots often forget conversations, causing customers to repeatedly explain the same issues and support teams to spend valuable time reviewing old tickets.
 
-SupportLens solves this problem by combining:
+SupportLens solves this problem by combining::
 * AI-powered conversations
 * Long-term memory
 * Ticket management

@@ -30,23 +30,23 @@ api.interceptors.response.use(
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 export const authAPI = {
-  register: (data) => api.post('/auth/register', data),
-  login: (data) => api.post('/auth/login', data),
-  getProfile: () => api.get('/auth/profile'),
+  register: (data) => api.post('/register', data),
+  login: (data) => api.post('/login', data),
+  getProfile: () => api.get('/profile'),
 };
 
 // ─── Chat ────────────────────────────────────────────────────────────────────
 export const chatAPI = {
-  sendMessage: (message) => api.post('/chat/', { message }),
-  getConversations: (userId) => api.get(`/chat/conversation/${userId}`),
+  sendMessage: (message) => api.post('/chat', { message }),
+  getConversations: (userId) => api.get(`/conversation/${userId}`),
 };
 
 // ─── Tickets ─────────────────────────────────────────────────────────────────
 export const ticketAPI = {
-  create: (data) => api.post('/tickets/', data),
-  getAll: () => api.get('/tickets/'),
-  getByUser: (userId) => api.get(`/tickets/${userId}`),
-  update: (ticketId, data) => api.patch(`/tickets/${ticketId}`, data),
+  create: (data) => api.post('/ticket', data),
+  getAll: () => api.get('/tickets'),
+  getByUser: () => api.get('/tickets'),
+  update: (ticketId, data) => api.patch(`/ticket/${ticketId}`, data),
 };
 
 // ─── History ─────────────────────────────────────────────────────────────────

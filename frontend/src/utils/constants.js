@@ -1,4 +1,4 @@
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://supportlens-api.onrender.com';
 
 export const TOKEN_KEY = 'supportlens_token';
 export const USER_KEY = 'supportlens_user';
