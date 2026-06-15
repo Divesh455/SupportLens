@@ -46,7 +46,7 @@ function DistributionBar({ items, colors }) {
 }
 
 export default function Dashboard() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isAgent } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -59,6 +59,15 @@ export default function Dashboard() {
         if (isAdmin) {
           const { data } = await dashboardAPI.getStats();
           setStats({ type: 'admin', ...data });
+        } else if (isAgent) {
+          const { data: tickets } = await ticketAPI.getAll();
+          setStats({
+            type: 'agent',
+            tickets,
+            open: tickets.filter((t) => t.status === 'Open').length,
+            resolved: tickets.filter((t) => t.status === 'Resolved' || t.status === 'Closed').length,
+            inProgress: tickets.filter((t) => t.status === 'In Progress').length,
+          });
         } else {
           const [ticketsRes, historyRes] = await Promise.all([
             ticketAPI.getByUser(user.id),
@@ -85,7 +94,7 @@ export default function Dashboard() {
     };
 
     if (user) fetchStats();
-  }, [user, isAdmin]);
+  }, [user, isAdmin, isAgent]);
 
   if (loading) {
     return <LoadingSpinner size="lg" text="Loading dashboard…" className="py-24" />;
@@ -102,7 +111,9 @@ export default function Dashboard() {
           <p className="text-white/70 mt-2 max-w-lg">
             {isAdmin
               ? 'Monitor support operations, track tickets, and analyze customer sentiment across your organization.'
-              : 'Your AI support assistant remembers every conversation. Ask anything — we already know your history.'}
+              : isAgent
+                ? 'View your assigned tickets and respond to customers in real time via WebSocket chat.'
+                : 'Your AI support assistant remembers every conversation. Ask anything — we already know your history.'}
           </p>
           <Link
             to="/chat"
@@ -148,6 +159,18 @@ export default function Dashboard() {
               />
             </div>
           </div>
+        </>
+      ) : stats?.type === 'agent' ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            <StatCard title="Assigned Tickets" value={stats.tickets?.length} icon={Ticket} color="purple" />
+            <StatCard title="Open" value={stats.open} icon={AlertTriangle} color="amber" />
+            <StatCard title="In Progress" value={stats.inProgress} icon={Ticket} color="indigo" />
+            <StatCard title="Resolved" value={stats.resolved} icon={CheckCircle2} color="emerald" />
+          </div>
+          <Link to="/chat" className="btn-primary inline-flex">
+            Open Customer Chat <ArrowRight className="w-4 h-4" />
+          </Link>
         </>
       ) : (
         <>

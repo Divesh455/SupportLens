@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { authAPI } from '../services/api';
-import { TOKEN_KEY, USER_KEY } from '../utils/constants';
+import { TOKEN_KEY, USER_KEY, ROLES } from '../utils/constants';
 import { getErrorMessage } from '../utils/formatters';
 
 const AuthContext = createContext(null);
@@ -81,11 +81,14 @@ export function AuthProvider({ children }) {
     clearAuth();
   };
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === ROLES.ADMIN;
+  const isAgent = user?.role === ROLES.SUPPORT_AGENT;
+  const isStaff = isAdmin || isAgent;
+  const hasRole = (...roles) => roles.includes(user?.role);
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, error, login, register, logout, isAdmin, setError }}
+      value={{ user, loading, error, login, register, logout, isAdmin, isAgent, isStaff, hasRole, setError }}
     >
       {children}
     </AuthContext.Provider>

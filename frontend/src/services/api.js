@@ -39,6 +39,7 @@ export const authAPI = {
 export const chatAPI = {
   sendMessage: (message) => api.post('/chat/', { message }),
   getConversations: (userId) => api.get(`/chat/conversation/${userId}`),
+  getMessages: (userId) => api.get(`/chat/messages/${userId}`),
 };
 
 // ─── Tickets ─────────────────────────────────────────────────────────────────
@@ -57,6 +58,17 @@ export const historyAPI = {
 // ─── Dashboard ───────────────────────────────────────────────────────────────
 export const dashboardAPI = {
   getStats: () => api.get('/dashboard/stats'),
+};
+
+// ─── Admin ───────────────────────────────────────────────────────────────────
+export const adminAPI = {
+  getUsers: () => api.get('/admin/users'),
+  updateUser: (userId, data) => api.patch(`/admin/users/${userId}`, data),
+  deleteUser: (userId) => api.delete(`/admin/users/${userId}`),
+  getAgents: () => api.get('/admin/agents'),
+  createAgent: (data) => api.post('/admin/agents', data),
+  getConfig: () => api.get('/admin/config'),
+  updateConfig: (data) => api.put('/admin/config', data),
 };
 
 export default api;

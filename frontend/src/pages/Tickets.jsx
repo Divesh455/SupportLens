@@ -11,7 +11,7 @@ import { getErrorMessage } from '../utils/formatters';
 import { TICKET_STATUSES } from '../utils/constants';
 
 export default function Tickets() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isAgent } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -19,11 +19,13 @@ export default function Tickets() {
   const [error, setError] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
+  const isStaff = isAdmin || isAgent;
+
   const fetchTickets = async () => {
     setLoading(true);
     setError('');
     try {
-      const { data } = isAdmin
+      const { data } = isStaff
         ? await ticketAPI.getAll()
         : await ticketAPI.getByUser(user.id);
       setTickets(data);
@@ -36,7 +38,7 @@ export default function Tickets() {
 
   useEffect(() => {
     if (user) fetchTickets();
-  }, [user, isAdmin]);
+  }, [user, isStaff]);
 
   const handleCreate = async (formData) => {
     setCreating(true);
@@ -62,16 +64,18 @@ export default function Tickets() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-bold text-slate-900">
-            {isAdmin ? 'All Support Tickets' : 'My Tickets'}
+            {isAdmin ? 'All Support Tickets' : isAgent ? 'Assigned Tickets' : 'My Tickets'}
           </h1>
           <p className="text-sm text-slate-500 mt-0.5">
             {tickets.length} total · {counts.Open || 0} open
           </p>
         </div>
-        <button onClick={() => setModalOpen(true)} className="btn-primary">
-          <Plus className="w-4 h-4" />
-          New Ticket
-        </button>
+        {!isStaff && (
+          <button onClick={() => setModalOpen(true)} className="btn-primary">
+            <Plus className="w-4 h-4" />
+            New Ticket
+          </button>
+        )}
       </div>
 
       {error && <ErrorAlert message={error} onDismiss={() => setError('')} />}

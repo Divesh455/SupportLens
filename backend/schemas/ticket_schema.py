@@ -11,6 +11,7 @@ class TicketUpdate(BaseModel):
     status: Optional[str] = None
     priority: Optional[str] = None
     summary: Optional[str] = None
+    assigned_agent_id: Optional[int] = None
 
 class TicketResponse(BaseModel):
     id: int
@@ -20,6 +21,7 @@ class TicketResponse(BaseModel):
     priority: str
     status: str
     summary: Optional[str]
+    assigned_agent_id: Optional[int] = None
     created_at: datetime
 
     class Config:
