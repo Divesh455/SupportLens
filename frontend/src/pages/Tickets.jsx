@@ -1,141 +1,130 @@
-import { useState, useEffect, useCallback } from 'react';
-import api from '../services/api';
+import { useEffect, useState } from 'react';
+import { Plus, Filter, Ticket as TicketIcon } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { ticketAPI } from '../services/api';
 import TicketCard from '../components/TicketCard';
-import { Plus, Ticket as TicketIcon } from 'lucide-react';
+import CreateTicketModal from '../components/CreateTicketModal';
+import LoadingSpinner from '../components/LoadingSpinner';
+import EmptyState from '../components/EmptyState';
+import ErrorAlert from '../components/ErrorAlert';
+import { getErrorMessage } from '../utils/formatters';
+import { TICKET_STATUSES } from '../utils/constants';
 
 export default function Tickets() {
+  const { user, isAdmin } = useAuth();
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const { user } = useAuth();
+  const [creating, setCreating] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [error, setError] = useState('');
+  const [statusFilter, setStatusFilter] = useState('All');
 
-  const [issue, setIssue] = useState('');
-  const [priority, setPriority] = useState('Medium');
-
-  const fetchTickets = useCallback(async () => {
-    if (!user) return;
+  const fetchTickets = async () => {
+    setLoading(true);
+    setError('');
     try {
-      const endpoint = user.role === 'admin' ? '/tickets/' : `/tickets/${user.id}`;
-      const res = await api.get(endpoint);
-      setTickets(res.data);
+      const { data } = isAdmin
+        ? await ticketAPI.getAll()
+        : await ticketAPI.getByUser(user.id);
+      setTickets(data);
     } catch (err) {
-      console.error("Failed to fetch tickets", err);
+      setError(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  };
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchTickets();
-  }, [fetchTickets]);
+    if (user) fetchTickets();
+  }, [user, isAdmin]);
 
-  const handleCreateTicket = async (e) => {
-    e.preventDefault();
+  const handleCreate = async (formData) => {
+    setCreating(true);
     try {
-      await api.post('/tickets/', { issue, priority });
-      setShowForm(false);
-      setIssue('');
-      fetchTickets();
-    } catch (err) {
-      console.error("Failed to create ticket", err);
+      await ticketAPI.create(formData);
+      await fetchTickets();
+    } finally {
+      setCreating(false);
     }
   };
 
-  const handleStatusChange = async (ticketId, newStatus) => {
-    try {
-      await api.patch(`/tickets/${ticketId}`, { status: newStatus });
-      fetchTickets();
-    } catch (err) {
-      console.error("Failed to update ticket", err);
-    }
-  };
+  const filtered = statusFilter === 'All'
+    ? tickets
+    : tickets.filter((t) => t.status === statusFilter);
 
-  if (loading) return <div className="p-8">Loading tickets...</div>;
+  const counts = TICKET_STATUSES.reduce((acc, s) => {
+    acc[s] = tickets.filter((t) => t.status === s).length;
+    return acc;
+  }, {});
 
   return (
-    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Support Tickets</h1>
-          <p className="text-gray-500 mt-1">Manage and track your support requests</p>
+          <h1 className="text-xl font-bold text-slate-900">
+            {isAdmin ? 'All Support Tickets' : 'My Tickets'}
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">
+            {tickets.length} total · {counts.Open || 0} open
+          </p>
         </div>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 font-medium transition-colors"
-          >
-            <Plus size={20} />
-            New Ticket
-          </button>
-        )}
+        <button onClick={() => setModalOpen(true)} className="btn-primary">
+          <Plus className="w-4 h-4" />
+          New Ticket
+        </button>
       </div>
 
-      {showForm && (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-          <h2 className="text-lg font-semibold mb-4">Create New Ticket</h2>
-          <form onSubmit={handleCreateTicket} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Issue Description</label>
-              <textarea
-                required
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                value={issue}
-                onChange={(e) => setIssue(e.target.value)}
-                placeholder="Describe the problem you are facing..."
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-              <select
-                className="w-full sm:w-1/3 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                value={priority}
-                onChange={(e) => setPriority(e.target.value)}
-              >
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-                <option value="Critical">Critical</option>
-              </select>
-            </div>
-            <div className="flex gap-3">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
-              >
-                Submit Ticket
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowForm(false)}
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200"
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      {error && <ErrorAlert message={error} onDismiss={() => setError('')} />}
 
-      {tickets.length === 0 && !showForm ? (
-        <div className="text-center py-12 bg-white rounded-xl border border-gray-200">
-          <TicketIcon size={48} className="mx-auto text-gray-300 mb-4" />
-          <h3 className="text-lg font-medium text-gray-900">No tickets found</h3>
-          <p className="text-gray-500">You don't have any support tickets yet.</p>
-        </div>
+      {/* Status filter pills */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        <Filter className="w-4 h-4 text-slate-400 shrink-0" />
+        {['All', ...TICKET_STATUSES].map((status) => (
+          <button
+            key={status}
+            onClick={() => setStatusFilter(status)}
+            className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+              statusFilter === status
+                ? 'bg-brand-600 text-white shadow-md shadow-brand-500/25'
+                : 'bg-white border border-slate-200 text-slate-600 hover:border-brand-200'
+            }`}
+          >
+            {status}
+            {status !== 'All' && counts[status] > 0 && (
+              <span className="ml-1.5 opacity-70">({counts[status]})</span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <LoadingSpinner size="lg" text="Loading tickets…" className="py-16" />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          icon={TicketIcon}
+          title={statusFilter === 'All' ? 'No tickets yet' : `No ${statusFilter.toLowerCase()} tickets`}
+          description="Create a ticket manually or let the AI create one during a chat conversation."
+          action={
+            <button onClick={() => setModalOpen(true)} className="btn-primary">
+              <Plus className="w-4 h-4" />
+              Create Ticket
+            </button>
+          }
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tickets.map(ticket => (
-            <TicketCard
-              key={ticket.id}
-              ticket={ticket}
-              onStatusChange={user?.role === 'admin' ? handleStatusChange : undefined}
-            />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filtered.map((ticket) => (
+            <TicketCard key={ticket.id} ticket={ticket} />
           ))}
         </div>
       )}
+
+      <CreateTicketModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSubmit={handleCreate}
+        loading={creating}
+      />
     </div>
   );
 }

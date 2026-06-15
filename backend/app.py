@@ -18,6 +18,10 @@ app.include_router(ticket_routes.router)
 app.include_router(history_routes.router)
 app.include_router(dashboard_routes.router)
 
+from database.db import Base, engine
+import models.user, models.ticket, models.interaction, models.memory
+Base.metadata.create_all(bind=engine)
+
 @app.get("/")
 def root():
     return {"message": "Welcome to SupportLens API"}

@@ -1,50 +1,63 @@
-import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { LogOut, User } from 'lucide-react';
+import { Menu, Bell, Search } from 'lucide-react';
+import { useLocation, Link } from 'react-router-dom';
 
-export default function Navbar() {
-  const { user, logout } = useAuth();
+const pageTitles = {
+  '/dashboard': 'Dashboard',
+  '/chat': 'AI Support Chat',
+  '/tickets': 'Support Tickets',
+  '/history': 'Customer Memory',
+  '/profile': 'Profile',
+};
+
+export default function Navbar({ onMenuClick }) {
+  const location = useLocation();
+
+  const getTitle = () => {
+    if (location.pathname.startsWith('/tickets/')) return 'Ticket Details';
+    return pageTitles[location.pathname] || 'SupportLens';
+  };
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">S</span>
-              </div>
-              <span className="font-bold text-xl text-gray-900 tracking-tight">SupportLens</span>
-            </Link>
-          </div>
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <>
-                <Link to="/profile" className="flex items-center space-x-2 text-gray-600 hover:text-indigo-600">
-                  <User size={20} />
-                  <span className="font-medium">{user.name}</span>
-                </Link>
-                <button
-                  onClick={logout}
-                  className="flex items-center space-x-1 px-3 py-2 rounded-md text-gray-600 hover:bg-gray-100 hover:text-red-600 transition-colors"
-                >
-                  <LogOut size={18} />
-                  <span>Logout</span>
-                </button>
-              </>
-            ) : (
-              <div className="space-x-2">
-                <Link to="/login" className="px-4 py-2 text-gray-600 hover:text-indigo-600 font-medium">
-                  Log in
-                </Link>
-                <Link to="/register" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium transition-colors">
-                  Register
-                </Link>
-              </div>
-            )}
+    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200">
+      <div className="flex items-center justify-between px-4 lg:px-6 h-16">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={onMenuClick}
+            className="lg:hidden p-2 rounded-xl hover:bg-slate-100 transition-colors"
+            aria-label="Open menu"
+          >
+            <Menu className="w-5 h-5 text-slate-600" />
+          </button>
+          <div>
+            <h2 className="text-lg font-semibold text-slate-900">{getTitle()}</h2>
+            <p className="text-xs text-slate-400 hidden sm:block">
+              AI-powered support with persistent memory
+            </p>
           </div>
         </div>
+
+        <div className="flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-50 border border-slate-200">
+            <Search className="w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search…"
+              className="bg-transparent text-sm text-slate-700 placeholder:text-slate-400 outline-none w-40"
+              readOnly
+            />
+          </div>
+          <button className="p-2 rounded-xl hover:bg-slate-100 transition-colors relative">
+            <Bell className="w-5 h-5 text-slate-500" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-500 rounded-full" />
+          </button>
+          <Link
+            to="/chat"
+            className="hidden sm:inline-flex btn-primary text-sm py-2 px-4"
+          >
+            New Chat
+          </Link>
+        </div>
       </div>
-    </nav>
+    </header>
   );
 }

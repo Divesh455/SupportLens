@@ -1,73 +1,75 @@
 import { useAuth } from '../hooks/useAuth';
-import { User, Mail, Building, Shield } from 'lucide-react';
+import { formatDateTime } from '../utils/formatters';
+import { User, Mail, Building2, Shield, Calendar, Sparkles } from 'lucide-react';
+
+function InfoRow({ icon: Icon, label, value }) {
+  return (
+    <div className="flex items-center gap-4 p-4 rounded-xl hover:bg-slate-50 transition-colors">
+      <div className="w-10 h-10 rounded-xl bg-brand-50 flex items-center justify-center shrink-0">
+        <Icon className="w-5 h-5 text-brand-600" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-slate-400 font-medium">{label}</p>
+        <p className="text-sm font-semibold text-slate-800 truncate">{value || '—'}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function Profile() {
   const { user } = useAuth();
 
-  if (!user) return <div className="p-8">Loading profile...</div>;
+  if (!user) return null;
+
+  const initials = user.name
+    ?.split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2) || 'U';
 
   return (
-    <div className="p-6 md:p-8 max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Profile</h1>
-        <p className="text-gray-500 mt-1">Manage your account information</p>
+    <div className="space-y-6 animate-fade-in max-w-2xl">
+      {/* Profile header */}
+      <div className="glass-card p-6 lg:p-8 text-center">
+        <div className="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-brand-600 to-accent-purple flex items-center justify-center text-2xl font-bold text-white shadow-lg shadow-brand-500/30 mb-4">
+          {initials}
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900">{user.name}</h1>
+        <p className="text-slate-500 mt-1">{user.email}</p>
+        {user.role === 'admin' && (
+          <span className="inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-full bg-brand-100 text-brand-700 text-sm font-medium">
+            <Shield className="w-3.5 h-3.5" />
+            Administrator
+          </span>
+        )}
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div className="p-6 sm:p-8 flex items-center gap-6 border-b border-gray-100">
-          <div className="w-24 h-24 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 flex-shrink-0">
-            <span className="text-4xl font-bold">{user.name.charAt(0)}</span>
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">{user.name}</h2>
-            <p className="text-gray-500">{user.role === 'admin' ? 'Administrator' : 'Customer'}</p>
-          </div>
+      {/* Account details */}
+      <div className="glass-card overflow-hidden">
+        <div className="px-6 py-4 border-b border-slate-100">
+          <h2 className="font-semibold text-slate-800">Account Details</h2>
         </div>
+        <div className="divide-y divide-slate-50">
+          <InfoRow icon={User} label="Full Name" value={user.name} />
+          <InfoRow icon={Mail} label="Email Address" value={user.email} />
+          <InfoRow icon={Building2} label="Company" value={user.company} />
+          <InfoRow icon={Shield} label="Role" value={user.role} />
+          <InfoRow icon={Calendar} label="Member Since" value={formatDateTime(user.created_at)} />
+        </div>
+      </div>
 
-        <div className="p-6 sm:p-8">
-          <dl className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center">
-              <dt className="w-48 text-sm font-medium text-gray-500 flex items-center gap-2 mb-1 sm:mb-0">
-                <User size={18} />
-                Full Name
-              </dt>
-              <dd className="text-gray-900 font-medium">{user.name}</dd>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center">
-              <dt className="w-48 text-sm font-medium text-gray-500 flex items-center gap-2 mb-1 sm:mb-0">
-                <Mail size={18} />
-                Email Address
-              </dt>
-              <dd className="text-gray-900 font-medium">{user.email}</dd>
-            </div>
-            {user.company && (
-              <div className="flex flex-col sm:flex-row sm:items-center">
-                <dt className="w-48 text-sm font-medium text-gray-500 flex items-center gap-2 mb-1 sm:mb-0">
-                  <Building size={18} />
-                  Company
-                </dt>
-                <dd className="text-gray-900 font-medium">{user.company}</dd>
-              </div>
-            )}
-            <div className="flex flex-col sm:flex-row sm:items-center">
-              <dt className="w-48 text-sm font-medium text-gray-500 flex items-center gap-2 mb-1 sm:mb-0">
-                <Shield size={18} />
-                Account Role
-              </dt>
-              <dd className="text-gray-900 font-medium capitalize">{user.role}</dd>
-            </div>
-            <div className="flex flex-col sm:flex-row sm:items-center">
-              <dt className="w-48 text-sm font-medium text-gray-500 flex items-center gap-2 mb-1 sm:mb-0">
-                Joined
-              </dt>
-              <dd className="text-gray-900 font-medium">
-                {new Date(user.created_at).toLocaleDateString(undefined, {
-                  year: 'numeric', month: 'long', day: 'numeric'
-                })}
-              </dd>
-            </div>
-          </dl>
+      {/* About SupportLens */}
+      <div className="glass-card p-6">
+        <div className="flex items-center gap-3 mb-3">
+          <Sparkles className="w-5 h-5 text-brand-500" />
+          <h3 className="font-semibold text-slate-800">About SupportLens</h3>
         </div>
+        <p className="text-sm text-slate-600 leading-relaxed">
+          SupportLens uses persistent AI memory to remember your past support interactions.
+          Every conversation, ticket, and resolution is stored so you never have to repeat yourself.
+          Our AI retrieves relevant context before generating personalized responses.
+        </p>
       </div>
     </div>
   );
