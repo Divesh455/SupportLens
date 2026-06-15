@@ -37,14 +37,11 @@ export const authAPI = {
 
 // ─── Chat ────────────────────────────────────────────────────────────────────
 export const chatAPI = {
-<<<<<<< HEAD
   sendMessage: (message) => api.post('/chat', { message }),
   getConversations: (userId) => api.get(`/conversation/${userId}`),
-=======
   sendMessage: (message) => api.post('/chat/', { message }),
   getConversations: (userId) => api.get(`/chat/conversation/${userId}`),
   getMessages: (userId) => api.get(`/chat/messages/${userId}`),
->>>>>>> 07df7e2161e27754c581fbb311e68c13e176eceb
 };
 
 // ─── Tickets ─────────────────────────────────────────────────────────────────
