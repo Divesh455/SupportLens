@@ -22,8 +22,22 @@ def get_tickets(db: Session):
 def get_user_tickets(db: Session, user_id: int):
     return db.query(Ticket).filter(Ticket.user_id == user_id).order_by(Ticket.created_at.desc()).all()
 
+def get_assigned_tickets(db: Session, agent_id: int):
+    return (
+        db.query(Ticket)
+        .filter(Ticket.assigned_agent_id == agent_id)
+        .order_by(Ticket.created_at.desc())
+        .all()
+    )
+
+def get_ticket_by_id(db: Session, ticket_id: int):
+    return db.query(Ticket).filter(Ticket.id == ticket_id).first()
+
+def agent_can_access_ticket(ticket: Ticket, agent_id: int) -> bool:
+    return ticket.assigned_agent_id == agent_id
+
 def update_ticket(db: Session, ticket_id: int, ticket_data: TicketUpdate):
-    ticket = db.query(Ticket).filter(Ticket.id == ticket_id).first()
+    ticket = get_ticket_by_id(db, ticket_id)
     if not ticket:
         return None
 
@@ -33,6 +47,8 @@ def update_ticket(db: Session, ticket_id: int, ticket_data: TicketUpdate):
         ticket.priority = ticket_data.priority
     if ticket_data.summary is not None:
         ticket.summary = ticket_data.summary
+    if ticket_data.assigned_agent_id is not None:
+        ticket.assigned_agent_id = ticket_data.assigned_agent_id
 
     db.commit()
     db.refresh(ticket)

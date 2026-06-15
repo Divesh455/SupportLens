@@ -11,6 +11,7 @@ import Tickets from './pages/Tickets';
 import TicketDetails from './pages/TicketDetails';
 import History from './pages/History';
 import Profile from './pages/Profile';
+import AdminUsers from './pages/AdminUsers';
 import LoadingSpinner from './components/LoadingSpinner';
 
 function RootRedirect() {
@@ -73,10 +74,19 @@ export default function App() {
           >
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/chat/:customerId" element={<Chat />} />
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/tickets/:id" element={<TicketDetails />} />
             <Route path="/history" element={<History />} />
             <Route path="/profile" element={<Profile />} />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute adminOnly>
+                  <AdminUsers />
+                </ProtectedRoute>
+              }
+            />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

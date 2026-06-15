@@ -7,9 +7,11 @@ import {
   LogOut,
   ChevronLeft,
   Sparkles,
+  Shield,
 } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { ROLE_LABELS } from '../utils/constants';
 
 const iconMap = {
   LayoutDashboard,
@@ -17,6 +19,7 @@ const iconMap = {
   Ticket,
   Brain,
   User,
+  Shield,
 };
 
 const navItems = [
@@ -27,8 +30,14 @@ const navItems = [
   { path: '/profile', label: 'Profile', icon: 'User' },
 ];
 
+const adminNavItems = [
+  { path: '/admin/users', label: 'Admin', icon: 'Shield' },
+];
+
 export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose }) {
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
+
+  const allNavItems = isAdmin ? [...navItems, ...adminNavItems] : navItems;
 
   const sidebarContent = (
     <>
@@ -47,7 +56,7 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
 
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-        {navItems.map(({ path, label, icon }) => {
+        {allNavItems.map(({ path, label, icon }) => {
           const Icon = iconMap[icon];
           return (
             <NavLink
@@ -77,7 +86,12 @@ export default function Sidebar({ collapsed, onToggle, mobileOpen, onMobileClose
             <p className="text-xs text-slate-400 truncate">{user.email}</p>
             {user.role === 'admin' && (
               <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-brand-100 text-brand-700 font-medium">
-                Admin
+                {ROLE_LABELS.admin}
+              </span>
+            )}
+            {user.role === 'support_agent' && (
+              <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+                {ROLE_LABELS.support_agent}
               </span>
             )}
           </div>

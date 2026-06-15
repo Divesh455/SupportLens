@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes import auth_routes, chat_routes, ticket_routes, history_routes, dashboard_routes
+from routes import auth_routes, chat_routes, ticket_routes, history_routes, dashboard_routes, admin_routes
+from websocket import websocket_routes
 
 app = FastAPI(title="SupportLens API", description="AI Customer Support Agent with Persistent Memory")
 
@@ -17,9 +18,11 @@ app.include_router(chat_routes.router)
 app.include_router(ticket_routes.router)
 app.include_router(history_routes.router)
 app.include_router(dashboard_routes.router)
+app.include_router(admin_routes.router)
+app.include_router(websocket_routes.router)
 
 from database.db import Base, engine
-import models.user, models.ticket, models.interaction, models.memory
+import models.user, models.ticket, models.interaction, models.memory, models.chat_message
 Base.metadata.create_all(bind=engine)
 
 @app.get("/")

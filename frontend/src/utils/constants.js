@@ -3,6 +3,18 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://supportlens
 export const TOKEN_KEY = 'supportlens_token';
 export const USER_KEY = 'supportlens_user';
 
+export const ROLES = {
+  USER: 'user',
+  ADMIN: 'admin',
+  SUPPORT_AGENT: 'support_agent',
+};
+
+export const ROLE_LABELS = {
+  user: 'Customer',
+  admin: 'Admin',
+  support_agent: 'Support Agent',
+};
+
 export const TICKET_STATUSES = ['Open', 'In Progress', 'Resolved', 'Closed'];
 export const TICKET_PRIORITIES = ['Low', 'Medium', 'High', 'Critical'];
 

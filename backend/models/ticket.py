@@ -13,6 +13,8 @@ class Ticket(Base):
     priority = Column(String, default="Medium")
     status = Column(String, default="Open")
     summary = Column(String, nullable=True)
+    assigned_agent_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    user = relationship("User")
+    user = relationship("User", foreign_keys=[user_id])
+    assigned_agent = relationship("User", foreign_keys=[assigned_agent_id])
