@@ -18,7 +18,7 @@ def generate_chat_response(prompt: str, context: str) -> str:
     ]
 
     response = client.chat.completions.create(
-        model="qwen-2.5-32b",
+        model="openai/gpt-oss-120b",
         messages=messages,
         temperature=0.7,
         max_tokens=512
@@ -39,7 +39,7 @@ def analyze_sentiment(text: str) -> str:
 
     try:
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="openai/gpt-oss-120b",
             messages=messages,
             temperature=0.1,
             max_tokens=10
@@ -65,7 +65,7 @@ def generate_ticket_summary(issue: str, interactions: list) -> str:
     ]
 
     response = client.chat.completions.create(
-        model="llama3-8b-8192",
+        model="openai/gpt-oss-120b",
         messages=messages,
         temperature=0.3,
         max_tokens=256
@@ -87,7 +87,7 @@ def detect_ticket_intent(text: str) -> dict:
 
     try:
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="openai/gpt-oss-120b",
             messages=messages,
             response_format={"type": "json_object"},
             temperature=0.1
